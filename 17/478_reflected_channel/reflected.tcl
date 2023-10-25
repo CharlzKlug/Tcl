@@ -76,3 +76,38 @@ proc ::bureaucrat::notify {chan event} {
     }
     after idle [list after 0 [list chan postevent $chan $event]]
 }
+
+proc ::bureaucrat::write {chan bytes} {
+    variable channels
+    if {[string length $bytes] == 0} {
+	return 0
+    }
+    dict with channels($chan) {
+	if {$InFlight} {
+	    if {$Blocking} {
+		return -code error EAGAIN
+	    } else {
+		return -code error EAGAIN
+	    }
+	}
+	set InFlight 1
+	after $Delay [list [namespace current]::delayed_receive $chan $bytes]
+    }
+    return [string length $bytes]
+}
+
+proc ::bureaucrat::delayed_receive {chan bytes} {
+    variable channels
+    if {! [info exists channels($chan)]} {
+	return;
+    }
+    dict with channels($chan) {
+	if {$State ne "OPEN"} {
+	    return
+	}
+	append Data $bytes
+	set InFlight 0
+    }
+    notify $chan read
+    notify $chan write
+}
