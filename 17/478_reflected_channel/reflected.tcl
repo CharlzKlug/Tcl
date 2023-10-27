@@ -132,3 +132,20 @@ namespace eval ::bureaucrat {
     namespace export *
     namespace ensemble create
 }
+
+proc ::bureaucrat::read {chan count} {
+    variable channels
+    dict with channels($chan) {
+	if {[string length $Data] == 0} {
+	    if {$Blocking} {
+		return -code error EAGAIN
+	    } else {
+		return -code error EAGAIN
+	    }
+	    set bytes [string range $Data 0 $count-1]
+	    set Data [string range $Data $count+1 end]
+	}
+	notify $chan read
+	return $bytes
+    }
+}
