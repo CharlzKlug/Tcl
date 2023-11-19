@@ -91,3 +91,21 @@ proc memfs::deletefile {fs_id root relpath origpath} {
 proc memfs::utime {fs_id root relpath origpath atime mtime} {
     node_set_times $fs_id [node_find $fs_id $relpath] $atime $mtime
 }
+
+proc memfs::stat {fs_id root relpath origpath} {
+    return [node_stat $fs_id [node_find $fs_id $relpath]]
+}
+
+proc memfs::fileattributes {fs_id root relpath origpath args} {
+    set attr_names [lsort [node_attr_names]]
+    if {[llength $args] == 0} {
+	return $attr_names
+    }
+    set node_key [node_find $fs_id $relpath]
+    set attr_name [lindex $attr_names [lindex $args 0]]
+    if {[llength $args] == 1} {
+	return [node_attr $fs_id [node_find $fs_id $relpath] $attr_name]
+    } else {
+	return [node_attr $fs_id [node_find $fs_id $relpath] $attr_name [lindex $args 1]]
+    }
+}
