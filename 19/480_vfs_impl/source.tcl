@@ -109,3 +109,38 @@ proc memfs::fileattributes {fs_id root relpath origpath args} {
 	return [node_attr $fs_id [node_find $fs_id $relpath] $attr_name [lindex $args 1]]
     }
 }
+
+proc memfs::matchindirectory {fs_id root relpath origpath pat type} {
+    variable file_systems
+    if {[string length $pat] == 0} {
+	set file_type [node_type $fs_id $relpath]
+	if {($file_type eq "dir" && [::vfs::matchDirectories $type]) ||
+	    ($file_type eq "file" && [::vfs::matchFiles $type])} {
+	    return [list $origpath]
+	} else {
+	    return {}
+	}
+    }
+
+    if {[node_type $fs_id $relpath] ne "dir"} {
+	return {}
+    }
+
+    set node_key [node_find $fs_id $relpath]
+    set matches {}
+    if {[::vfs::matchDirectories $type]} {
+	foreach name [node_subdirs $fs_id $node_key] {
+	    if {[string match $pat $name]} {
+		lappend matches [file join $origpath $name]
+	    }
+	}
+    }
+    if {[::vfs::matchFiles $type]} {
+	foreach name [node_files $fs_id $node_key] {
+	    if {[string match $pat $name]} {
+		lappend matches [file join $origpath $name]
+	    }
+	}
+    }
+    return $matches
+}
