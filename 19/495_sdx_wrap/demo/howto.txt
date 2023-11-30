@@ -1,0 +1,2 @@
+Как создать пакет:
+./tclkit-8.6.12 sdx-20110317.kit wrap /home/user/projects/Tcl/19/495_sdx_wrap/demo/demo -interp tclkit-8.6.12
