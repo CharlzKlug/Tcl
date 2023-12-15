@@ -1,0 +1,7 @@
+Как запустить island:
+
+В этой директории запустить eltclsh и набрать:
+--- Cut here ---
+eltclsh > package require island 
+0.2
+--- Cut here ---
