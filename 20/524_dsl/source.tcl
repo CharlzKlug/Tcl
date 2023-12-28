@@ -96,3 +96,44 @@ oo::define Paymaster method deduct {what deduction args} {
 				   %USE_PERCENT% [expr {$percent ne ""}]] \
 		       $template]
 }
+
+oo::define Paymaster method generate {what} {
+    switch -exact -- $what {
+	paycheck {
+	    append Script {puts "Pay to $Name the amount of $NetAmount"} \n
+	}
+	paystub {
+	    append Script {
+		puts "Paystub: $Name Salary=$Salary Net=$NetAmount"
+		puts "         Fed=$FederalTax State=$StateTax Insurance=$Insurance"
+	    } \n
+	}
+	default { error "No means of generating \"$what\"" }
+    }
+}
+
+oo::define Paymaster {
+    method pay {emp} {
+	set emp [dict merge {
+	    FederalTax 0
+	    StateTax 0
+	    Insurance 0
+	} $emp]
+	dict set emp NetAmount [dict get $emp Salary]
+	calculator eval [list set emp $emp]
+	calculator eval [list dict with emp $Script]
+    }
+}
+
+oo::define Paymaster method script { } {
+return $Script
+}
+
+Paymaster create paymaster {
+deduct insurance 100
+deduct federal 10% when salary between 20000 and 30000
+deduct federal 20% when salary above 30000
+deduct state 5% when federal above 2500
+generate paycheck
+generate paystub
+}
