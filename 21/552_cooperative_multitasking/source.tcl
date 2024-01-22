@@ -28,3 +28,11 @@ proc task::myself {} {
     }
     error "Not running in a task."
 }
+
+proc task::cleanup {task_id} {
+    variable tasks
+    if {[dict exists $tasks $task_id]} {
+	catch {rename $task_id ""}
+	dict unset tasks $task_id
+    }
+}
