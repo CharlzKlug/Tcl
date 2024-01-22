@@ -36,3 +36,19 @@ proc task::cleanup {task_id} {
 	dict unset tasks $task_id
     }
 }
+
+proc task::send {task_id message} {
+    variable tasks
+    if {[dict exists $tasks $task_id]} {
+	dict with tasks $task_id {
+	    lappend Messages $message
+	}
+	wakeup_dispatcher
+    }
+    return
+}
+
+proc task::wakeup_dispatcher {} {
+    variable dispatcher_alarm
+    set dispatcher_alarm 1
+}
