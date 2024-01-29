@@ -52,3 +52,18 @@ proc task::wakeup_dispatcher {} {
     variable dispatcher_alarm
     set dispatcher_alarm 1
 }
+
+proc task::recv {} {
+    variable tasks
+    set me [myself]
+    while {1} {
+	set msgs [dict get $tasks $me Messages]
+	if {[llength $msgs] != 0} {
+	    dict set tasks $me Messages [lassign $msgs msg]
+	    return $msg
+	} else {
+	    dict set tasks $me State RECEIVE
+	    suspend
+	}
+    }
+}
